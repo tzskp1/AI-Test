@@ -17,6 +17,10 @@
 #pragma clang diagnostic pop
 #endif
 
+#include <string.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <cstring>
 #include "RoboCupGameControlData.h"
 #include "UdpComm.h"
 
@@ -25,9 +29,11 @@ static const int GAMECONTROLLER_TIMEOUT = 2000; /**< Connected to GameController
 static const int ALIVE_DELAY = 500; /**< Send an alive signal every 500 ms. */
 
 
-class GameCtrl 
-{
-private:
+
+class GameCtrl{
+
+public:
+//private:
   static GameCtrl* theInstance; /**< The only instance of this class. */
 
   UdpComm* udp; /**< The socket used to communicate. */
@@ -54,12 +60,6 @@ private:
     previousKickOffTeam = (uint8_t) -1;
     previousTeamColour = (uint8_t) -1;
     previousPenalty = (uint8_t) -1;
-    previousChestButtonPressed = false;
-    previousLeftFootButtonPressed = false;
-    previousRightFootButtonPressed = false;
-    whenChestButtonStateChanged = 0;
-    whenLeftFootButtonStateChanged = 0;
-    whenRightFootButtonStateChanged = 0;
     whenPacketWasReceived = 0;
     whenPacketWasSent = 0;
     memset(&gameCtrlData, 0, sizeof(gameCtrlData));
@@ -115,24 +115,16 @@ private:
   {
     if(udp)
       delete udp;
-    if(proxy)
-    {
-      proxy->getGenericProxy()->getModule()->removeAllPreProcess();
-      proxy->getGenericProxy()->getModule()->removeAllPostProcess();
-      delete proxy;
-    }
   }
 
   //
 
-public:
   /**
    * The constructor sets up the structures required to communicate with NAOqi.
    * @param pBroker A NAOqi broker that allows accessing other NAOqi modules.
    */
   GameCtrl()
-  : proxy(0),
-    udp(0),
+  : udp(0),
     teamNumber(0)
   {
     init();
@@ -154,8 +146,6 @@ public:
         udp = 0;
         close();
       }
-
-    publish();
   }
 
   /**
@@ -168,3 +158,15 @@ public:
 };
 
 GameCtrl* GameCtrl::theInstance = 0;
+
+int main(int argc, char *argv[])
+{
+  GameCtrl gamectl;
+  gamectl.teamNumber=2;
+  while(1){
+    if(gamectl.receive()){
+      printf("%d\n",gamectl.gameCtrlData.state);
+    }
+  }
+  return 0;
+}
