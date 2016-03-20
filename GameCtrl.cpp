@@ -24,6 +24,8 @@
 #include "RoboCupGameControlData.h"
 #include "UdpComm.h"
 
+#include <iostream>
+
 static const int BUTTON_DELAY = 30; /**< Button state changes are ignored when happening in less than 30 ms. */
 static const int GAMECONTROLLER_TIMEOUT = 2000; /**< Connected to GameController when packet was received within the last 2000 ms. */
 static const int ALIVE_DELAY = 500; /**< Send an alive signal every 500 ms. */
